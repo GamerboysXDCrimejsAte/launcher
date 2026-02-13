@@ -1,0 +1,29 @@
+name: Build Minecraft Launcher
+
+on:  
+  push:  
+    branches: [ main ] # Or whatever your main branch is called  
+  workflow_dispatch: # Allows you to manually trigger the workflow
+
+jobs:  
+  build:  
+    runs-on: windows-latest # Use Windows runner
+
+    steps:  
+      - uses: actions/checkout@v3 # Check out your repository
+
+      - name: Set up .NET SDK  
+        uses: actions/setup-dotnet@v3  
+        with:  
+          dotnet-version: '4.7.2' # Or whichever version you need
+
+      - name: Build  
+        run: dotnet build MinecraftLauncher.csproj
+
+      - name: Upload Artifact  
+        uses: actions/upload-artifact@v3  
+        with:  
+          name: MinecraftLauncher  
+          path: bin\Debug  
+et472\MinecraftLauncher.exe # Adjust path if necessary  
+          retention-days: 7 # Keep the artifact for 7 days  
