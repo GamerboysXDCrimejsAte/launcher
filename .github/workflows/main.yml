@@ -3,8 +3,7 @@ name: Build C# Launcher
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
 
 jobs:
   build:
@@ -17,17 +16,27 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x # Or your preferred version (e.g., 6.0.x)
+        dotnet-version: 8.0.x 
 
-    - name: Build Single File EXE
+    - name: Build WinForms EXE
       run: |
-        dotnet new console -n LauncherTemp --force
+        # Create a Windows Forms project template to get the correct references
+        dotnet new winforms -n LauncherTemp --force
+        
+        # Replace the default Program.cs with your launcher.cs
         copy launcher.cs LauncherTemp/Program.cs
+        
         cd LauncherTemp
-        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o ../publish
+        
+        # Publish as a single-file, self-contained Windows executable
+        dotnet publish -c Release -r win-x64 --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:PublishTrimmed=false `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -o ../publish
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Launcher-EXE
+        name: Minecraft-Launcher-EXE
         path: publish/LauncherTemp.exe
